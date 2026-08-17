@@ -19,7 +19,7 @@ function TaskForm({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Edit mode में पुरानी Task की details form में भरना
+  // Edit mode: purani task ki details form mein bharna
   useEffect(() => {
     if (editTask) {
       setFormData({
@@ -44,7 +44,7 @@ function TaskForm({
     setError("");
   }, [editTask]);
 
-  // Form input handle करना
+  // Form input handle karna
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -54,7 +54,7 @@ function TaskForm({
     }));
   };
 
-  // Create और Update API
+  // Create aur Update API
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -69,9 +69,14 @@ function TaskForm({
 
       const isEdit = Boolean(editTask);
 
+      // Correct API URL
       const url = isEdit
-        ? '${API_URL}/api/tasks/${editTask._id}'
-        : '${API_URL}/api/tasks;'
+        ? `${API_URL}/api/tasks/${editTask._id}`
+        : `${API_URL}/api/tasks`;
+
+      console.log("Request URL:", url);
+      console.log("Request Method:", isEdit ? "PUT" : "POST");
+      console.log("Request Data:", formData);
 
       const response = await fetch(url, {
         method: isEdit ? "PUT" : "POST",
@@ -81,39 +86,42 @@ function TaskForm({
         body: JSON.stringify(formData),
       });
 
-      // Read response safely because some servers may return an empty response
-// Read and inspect the server response
-const text = await response.text();
+      // Response ko pehle text ke form mein read karna
+      const text = await response.text();
 
-console.log("API Status:", response.status);
-console.log("API Response:", text);
+      console.log("API Status:", response.status);
+      console.log("API Response:", text);
 
-let data = {};
+      let data = {};
 
-if (text) {
-  try {
-    data = JSON.parse(text);
-  } catch {
-    throw new Error('Invalid server response: ${text}');
-  }
-}
+      // JSON response parse karna
+      if (text) {
+        try {
+          data = JSON.parse(text);
+        } catch {
+          throw new Error(`Invalid server response: ${text}`);
+        }
+      }
 
-if (!response.ok) {
-  throw new Error(
-    data.message || 'Request failed with status ${response.status}'
-  );
-}
+      // Agar API error return kare
+      if (!response.ok) {
+        throw new Error(
+          data.message || `Request failed with status ${response.status}`
+        );
+      }
 
+      // Create / Update ke baad parent component ko data dena
       if (isEdit) {
         onTaskUpdated(data.data);
       } else {
         onTaskAdded(data.data);
       }
 
+      // Form close
       onClose();
     } catch (error) {
       console.error("Task error:", error);
-      setError(error.message);
+      setError(error.message || "Something went wrong");
     } finally {
       setLoading(false);
     }
@@ -121,29 +129,20 @@ if (!response.ok) {
 
   return (
     <div className="form-container">
-
       {/* Form Header */}
       <div className="form-header">
-        <h2>
-          {editTask ? "Edit Task" : "Add New Task"}
-        </h2>
+        <h2>{editTask ? "Edit Task" : "Add New Task"}</h2>
 
-        <button
-          type="button"
-          onClick={onClose}
-        >
+        <button type="button" onClick={onClose}>
           ✕
         </button>
       </div>
 
-      {error && (
-        <p className="form-error">
-          {error}
-        </p>
-      )}
+      {/* Error Message */}
+      {error && <p className="form-error">{error}</p>}
 
       <form onSubmit={handleSubmit}>
-
+        {/* Title */}
         <label>Title</label>
 
         <input
@@ -154,6 +153,7 @@ if (!response.ok) {
           placeholder="Enter task title"
         />
 
+        {/* Description */}
         <label>Description</label>
 
         <textarea
@@ -163,6 +163,7 @@ if (!response.ok) {
           placeholder="Enter task description"
         />
 
+        {/* Category */}
         <label>Category</label>
 
         <input
@@ -173,6 +174,7 @@ if (!response.ok) {
           placeholder="Example: Work"
         />
 
+        {/* Due Date */}
         <label>Due Date</label>
 
         <input
@@ -182,6 +184,7 @@ if (!response.ok) {
           onChange={handleChange}
         />
 
+        {/* Status */}
         <label>Status</label>
 
         <select
@@ -194,19 +197,13 @@ if (!response.ok) {
           <option value="Done">Done</option>
         </select>
 
+        {/* Buttons */}
         <div className="form-buttons">
-
-          <button
-            type="button"
-            onClick={onClose}
-          >
+          <button type="button" onClick={onClose}>
             Cancel
           </button>
 
-          <button
-            type="submit"
-            disabled={loading}
-          >
+          <button type="submit" disabled={loading}>
             {loading
               ? editTask
                 ? "Updating..."
@@ -215,7 +212,6 @@ if (!response.ok) {
               ? "Update Task"
               : "Add Task"}
           </button>
-
         </div>
       </form>
     </div>
