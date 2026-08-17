@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 
+const API_URL = "https://taskflow-backend-wq7l.onrender.com";
+
 function TaskForm({
   onTaskAdded,
   onTaskUpdated,
@@ -25,9 +27,7 @@ function TaskForm({
         description: editTask.description || "",
         category: editTask.category || "General",
         dueDate: editTask.dueDate
-          ? new Date(editTask.dueDate)
-              .toISOString()
-              .split("T")[0]
+          ? new Date(editTask.dueDate).toISOString().split("T")[0]
           : "",
         status: editTask.status || "Pending",
       });
@@ -70,8 +70,8 @@ function TaskForm({
       const isEdit = Boolean(editTask);
 
       const url = isEdit
-        ? `http://localhost:5000/api/tasks/${editTask._id}`
-        : "http://localhost:5000/api/tasks";
+        ? '${API_URL}/api/tasks/${editTask._id}'
+        : '${API_URL}/api/tasks;'
 
       const response = await fetch(url, {
         method: isEdit ? "PUT" : "POST",

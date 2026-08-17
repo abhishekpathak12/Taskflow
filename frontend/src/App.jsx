@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import "./App.css";
 import TaskForm from "./components/TaskForm";
 
+// Live Backend API URL
+const API_URL = "https://taskflow-backend-wq7l.onrender.com";
+
 function App() {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -9,13 +12,13 @@ function App() {
   const [showForm, setShowForm] = useState(false);
   const [editTask, setEditTask] = useState(null);
 
-  // Search और Status Filter की states
+  // Search and Status Filter
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
 
   // Get Tasks
   useEffect(() => {
-    fetch("http://localhost:5000/api/tasks")
+    fetch('${API_URL}/api/tasks')
       .then((response) => {
         if (!response.ok) {
           throw new Error("Failed to fetch tasks");
@@ -41,19 +44,14 @@ function App() {
     if (!confirmDelete) return;
 
     try {
-      const response = await fetch(
-        'http://localhost:5000/api/tasks/${id}',
-        {
-          method: "DELETE",
-        }
-      );
+      const response = await fetch('${API_URL}/api/tasks/${id}', {
+        method: "DELETE",
+      });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(
-          data.message || "Failed to delete task"
-        );
+        throw new Error(data.message || "Failed to delete task");
       }
 
       setTasks((prevTasks) =>
@@ -71,8 +69,7 @@ function App() {
       .includes(search.toLowerCase());
 
     const matchesStatus =
-      statusFilter === "all" ||
-      task.status === statusFilter;
+      statusFilter === "all" || task.status === statusFilter;
 
     return matchesSearch && matchesStatus;
   });
@@ -110,9 +107,7 @@ function App() {
 
           <select
             value={statusFilter}
-            onChange={(e) =>
-              setStatusFilter(e.target.value)
-            }
+            onChange={(e) => setStatusFilter(e.target.value)}
           >
             <option value="all">All Status</option>
             <option value="Pending">Pending</option>
@@ -126,46 +121,40 @@ function App() {
 
           {error && <p>{error}</p>}
 
-          {!loading &&
-            !error &&
-            filteredTasks.length === 0 && (
-              <div className="empty-state">
-                <h3>No tasks found</h3>
-                <p>
-                  Try another search or add a new task.
-                </p>
-              </div>
-            )}
+          {!loading && !error && filteredTasks.length === 0 && (
+            <div className="empty-state">
+              <h3>No tasks found</h3>
+              <p>Try another search or add a new task.</p>
+            </div>
+          )}
 
           {!loading &&
             !error &&
             filteredTasks.map((task) => (
-              <div
-                className="task-card"
-                key={task._id}
-              >
+              <div className="task-card" key={task._id}>
                 <h3>{task.title}</h3>
 
                 <p>{task.description}</p>
 
                 <p>
-                  <strong>Category:</strong>{" "}
-                  {task.category}
+                  <strong>Category:</strong> {task.category}
                 </p>
 
                 <p>
                   <strong>Status:</strong>{" "}
-                   <span className={'status-badge ${task.status.toLowerCase().replace(" ", "-")}'}>
-                     {task.status}
-                       </span>
+                  <span
+                    className={`status-badge ${task.status
+                      .toLowerCase()
+                      .replace(" ", "-")}`}
+                  >
+                    {task.status}
+                  </span>
                 </p>
 
                 <p>
                   <strong>Due Date:</strong>{" "}
                   {task.dueDate
-                    ? new Date(
-                        task.dueDate
-                      ).toLocaleDateString()
+                    ? new Date(task.dueDate).toLocaleDateString()
                     : "No date"}
                 </p>
 
@@ -182,9 +171,7 @@ function App() {
 
                   <button
                     className="delete-btn"
-                    onClick={() =>
-                      handleDelete(task._id)
-                    }
+                    onClick={() => handleDelete(task._id)}
                   >
                     Delete
                   </button>
@@ -196,17 +183,12 @@ function App() {
         {showForm && (
           <TaskForm
             onTaskAdded={(newTask) => {
-              setTasks((prevTasks) => [
-                newTask,
-                ...prevTasks,
-              ]);
+              setTasks((prevTasks) => [newTask, ...prevTasks]);
             }}
             onTaskUpdated={(updatedTask) => {
               setTasks((prevTasks) =>
                 prevTasks.map((task) =>
-                  task._id === updatedTask._id
-                    ? updatedTask
-                    : task
+                  task._id === updatedTask._id ? updatedTask : task
                 )
               );
 
