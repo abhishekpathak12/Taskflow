@@ -81,13 +81,24 @@ function TaskForm({
         body: JSON.stringify(formData),
       });
 
-      const data = await response.json();
+      // Read response safely because some servers may return an empty response
+const text = await response.text();
 
-      if (!response.ok) {
-        throw new Error(
-          data.message || "Something went wrong"
-        );
-      }
+let data = {};
+
+if (text) {
+  try {
+    data = JSON.parse(text);
+  } catch {
+    throw new Error("Server returned an invalid response");
+  }
+}
+
+if (!response.ok) {
+  throw new Error(
+    data.message || "Something went wrong"
+  );
+}
 
       if (isEdit) {
         onTaskUpdated(data.data);
