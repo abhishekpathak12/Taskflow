@@ -18,7 +18,7 @@ function App() {
 
   // Get Tasks
   useEffect(() => {
-    fetch('${API_URL}/api/tasks')
+    fetch(`${API_URL}/api/tasks`)
       .then((response) => {
         if (!response.ok) {
           throw new Error("Failed to fetch tasks");
@@ -44,7 +44,7 @@ function App() {
     if (!confirmDelete) return;
 
     try {
-      const response = await fetch('${API_URL}/api/tasks/${id}', {
+      const response = await fetch(`${API_URL}/api/tasks/${id}`, {
         method: "DELETE",
       });
 
