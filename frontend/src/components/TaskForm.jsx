@@ -82,7 +82,11 @@ function TaskForm({
       });
 
       // Read response safely because some servers may return an empty response
+// Read and inspect the server response
 const text = await response.text();
+
+console.log("API Status:", response.status);
+console.log("API Response:", text);
 
 let data = {};
 
@@ -90,13 +94,13 @@ if (text) {
   try {
     data = JSON.parse(text);
   } catch {
-    throw new Error("Server returned an invalid response");
+    throw new Error('Invalid server response: ${text}');
   }
 }
 
 if (!response.ok) {
   throw new Error(
-    data.message || "Something went wrong"
+    data.message || 'Request failed with status ${response.status}'
   );
 }
 
